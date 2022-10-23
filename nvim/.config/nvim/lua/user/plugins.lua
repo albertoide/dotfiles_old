@@ -40,31 +40,35 @@ packer.init {
 
 -- Install your plugins here
 return packer.startup(function(use)
-  -- My plugins here
-  use "wbthomason/packer.nvim" -- Have packer manage itself
-  use "nvim-lua/popup.nvim" -- An implementation of the Popup API from vim in Neovim
-  use "nvim-lua/plenary.nvim" -- Useful lua functions used ny lots of plugins
-
-  -- cmp plugins
-  use "hrsh7th/nvim-cmp" -- The completion plugin
-  use "hrsh7th/cmp-buffer" -- buffer completions
-
-  use "mhartington/formatter.nvim"
-
-  -- Colorschemes
-  -- use "lunarvim/colorschemes" -- A bunch of colorschemes you can try out
+  -- colorschemes
   use "lunarvim/darkplus.nvim"
   use "Mofiqul/dracula.nvim"
 
-  -- Telescope
-  use "nvim-telescope/telescope.nvim"
-
+  -- plugins here
+  use "wbthomason/packer.nvim" -- Have packer manage itself
+  use "nvim-lua/popup.nvim" -- An implementation of the Popup API from vim in Neovim
+  use "nvim-lua/plenary.nvim" -- Useful lua functions used ny lots of plugins
   use {
       "lewis6991/gitsigns.nvim",
       config = function()
           require("gitsigns").setup()
       end
   }
+
+  -- cmp plugins
+  use "hrsh7th/nvim-cmp" -- The completion plugin
+  use "hrsh7th/cmp-buffer" -- buffer completions
+  use "hrsh7th/cmp-nvim-lsp" -- buffer completions
+
+  -- telescope
+  use "nvim-telescope/telescope.nvim"
+  
+  -- LSP
+  use "neovim/nvim-lspconfig"
+  use "williamboman/mason.nvim"
+  use "jose-elias-alvarez/null-ls.nvim"
+
+  --
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
   if PACKER_BOOTSTRAP then

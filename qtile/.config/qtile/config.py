@@ -27,119 +27,78 @@
 from libqtile import bar, layout, widget
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
-from libqtile.utils import guess_terminal
 
-mod = "mod4"
-terminal = guess_terminal()
-
-keys = [
-    # A list of available commands that can be bound to keys can be found
-    # at https://docs.qtile.org/en/latest/manual/config/lazy.html
-    # Switch between windows
-    Key([mod], "Left", lazy.layout.left(), desc="Move focus to left"),
-    Key([mod], "Right", lazy.layout.right(), desc="Move focus to right"),
-    Key([mod], "Down", lazy.layout.down(), desc="Move focus down"),
-    Key([mod], "Up", lazy.layout.up(), desc="Move focus up"),
-    Key([mod], "space", lazy.layout.next(), desc="Move window focus to other window"),
-    Key([mod, "shift"], "space", lazy.layout.previous(), desc="Move window focus to other window"),
-
-    # Move windows between left/right columns or move up/down in current stack.
-    # Moving out of range in Columns layout will create new column.
-    # Key([mod, "shift"], "h", lazy.layout.client_to_previous()),
-    # Key([mod, "shift"], "l", lazy.layout.client_to_next()),
-
-    Key([mod, "shift"], "Left", lazy.layout.shuffle_left(), desc="Move window to the left"),
-    Key([mod, "shift"], "Right", lazy.layout.shuffle_right(), desc="Move window to the right"),
-
-    Key([mod, "shift"], "j", lazy.layout.shuffle_down(), desc="Move window down"),
-    Key([mod, "shift"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
-
-    Key([mod, "shift", "control"], "Left", lazy.layout.swap_column_left()),
-    Key([mod, "shift", "control"], "Right", lazy.layout.swap_column_right()),
-
-    # Grow windows. If current window is on the edge of screen and direction
-    # will be to screen edge - window would shrink.
-    Key([mod, "control"], "Left", lazy.layout.grow_left(), desc="Grow window to the left"),
-    Key([mod, "control"], "Right", lazy.layout.grow_right(), desc="Grow window to the right"),
-    Key([mod, "control"], "Down", lazy.layout.grow_down(), desc="Grow window down"),
-    Key([mod, "control"], "Up", lazy.layout.grow_up(), desc="Grow window up"),
-    Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
-    # Toggle between split and unsplit sides of stack.
-    # Split = all windows displayed
-    # Unsplit = 1 window displayed, like Max layout, but still with
-    # multiple stack panes
-    Key(
-        [mod, "shift"],
-        "Return",
-        lazy.layout.toggle_split(),
-        desc="Toggle between split and unsplit sides of stack",
-    ),
-    Key([mod], "Return", lazy.spawn(terminal), desc="Launch terminal"),
-    Key([mod], "r", lazy.spawn("rofi -show drun"), desc="Launch rofi"),
-    # Key([mod], "r", lazy.spawncmd(), desc="Spawn a command using a prompt widget"),
-
-    # Toggle between different layouts as defined below
-    Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
-    Key([mod], "w", lazy.window.kill(), desc="Kill focused window"),
-    Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
-    Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
-]
+from settings.keys import keys, mod, go_to_group
+from settings.layouts import layouts
 
 groups = [Group(i) for i in "123456789"]
 
 for i in groups:
-    keys.extend(
-        [
-            # mod1 + letter of group = switch to group
-            Key(
-                [mod],
-                i.name,
-                lazy.group[i.name].toscreen(),
-                desc="Switch to group {}".format(i.name),
-            ),
-            # mod1 + shift + letter of group = switch to & move focused window to group
-            Key(
-                [mod, "shift"],
-                i.name,
-                lazy.window.togroup(i.name, switch_group=True),
-                desc="Switch to & move focused window to group {}".format(i.name),
-            ),
-            # Or, use below if you prefer not to switch to that group.
-            # # mod1 + shift + letter of group = move focused window to group
-            # Key([mod, "shift"], i.name, lazy.window.togroup(i.name),
-            #     desc="move focused window to group {}".format(i.name)),
-        ]
+    keys.append(
+        Key(
+            [mod],
+            i.name,
+            lazy.group[i.name].toscreen(),
+            desc="Switch to group {}".format(i.name),
+        )
     )
+    keys.append(Key([mod], i.name, lazy.function(go_to_group(i.name))))
+    keys.append(Key([mod, "shift"], i.name, lazy.window.togroup(i.name)))
 
-layouts = [
-    layout.Columns(num_columns=3, border_focus_stack=["#d75f5f", "#8f3d3d"], border_width=2, margin=8),
-    layout.Max(),
-    # Try more layouts by unleashing below layouts.
-    # layout.Stack(num_stacks=3),
-    # layout.Bsp(),
-    # layout.Matrix(),
-    # layout.MonadTall(),
-    # layout.MonadWide(),
-    # layout.RatioTile(),
-    # layout.Tile(),
-    # layout.TreeTab(),
-    # layout.VerticalTile(),
-    # layout.Zoomy(),
-]
 
 widget_defaults = dict(
     font="sans",
-    fontsize=12,
-    padding=3,
+    fontsize=14,
+    padding=2,
 )
+
 extension_defaults = widget_defaults.copy()
+
+wallpaper_path = "~/data/wallpapers-themer/arch-logo-dark.png"
 
 screens = [
     Screen(
-        bottom=bar.Bar(
+        top=bar.Bar(
             [
                 widget.CurrentLayout(),
-                widget.GroupBox(),
+                widget.GroupBox(
+                    visible_groups=["1", "2", "3", "4", "5"],
+                    borderwidth=1,
+                    padding_x=8,
+                    active=["#f1ffff", "#f1ffff"],
+                    inactive=["#44475a", "#44475a"],
+                    highlight_method="block",
+                    rounded=False,
+                    this_current_screen_border=["#bd93f9", "#bd93f9"],
+                    other_current_screen_border=["#6272a4", "#6272a4"],
+                    foreground=["#292d3e", "#292d3e"],
+                    background=["#282a36", "#282a36"],
+                ),
+                widget.WindowName(),
+                widget.Systray(),
+                widget.Clock(format="%Y-%m-%d %a %I:%M %p"),
+            ],
+            28,
+            background="#282A36",
+        ),
+        wallpaper=wallpaper_path,
+        wallpaper_mode="fill",
+    ),
+    Screen(
+        top=bar.Bar(
+            [
+                widget.CurrentLayout(),
+                widget.GroupBox(
+                    visible_groups=["6", "7", "8", "9"],
+                    active=["#f1ffff", "#f1ffff"],
+                    inactive=["#44475a", "#44475a"],
+                    highlight_method="block",
+                    rounded=False,
+                    this_current_screen_border=["#bd93f9", "#bd93f9"],
+                    other_current_screen_border=["#6272a4", "#6272a4"],
+                    foreground=["#292d3e", "#292d3e"],
+                    background=["#282a36", "#282a36"],
+                ),
                 widget.Prompt(),
                 widget.WindowName(),
                 widget.Chord(
@@ -148,23 +107,27 @@ screens = [
                     },
                     name_transform=lambda name: name.upper(),
                 ),
-                widget.TextBox("default config", name="default"),
-                widget.TextBox("Press &lt;M-r&gt; to spawn", foreground="#d75f5f"),
-                widget.Systray(),
+                # widget.Systray(),
                 widget.Clock(format="%Y-%m-%d %a %I:%M %p"),
                 widget.QuickExit(),
             ],
             24,
-            # border_width=[2, 0, 2, 0],  # Draw top and bottom borders
-            # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
+            background="#282A36",
         ),
     ),
 ]
 
 # Drag floating layouts.
 mouse = [
-    Drag([mod], "Button1", lazy.window.set_position_floating(), start=lazy.window.get_position()),
-    Drag([mod], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()),
+    Drag(
+        [mod],
+        "Button1",
+        lazy.window.set_position_floating(),
+        start=lazy.window.get_position(),
+    ),
+    Drag(
+        [mod], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()
+    ),
     Click([mod], "Button2", lazy.window.bring_to_front()),
 ]
 

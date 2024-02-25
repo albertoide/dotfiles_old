@@ -1,4 +1,4 @@
-# Copyright (c) 2010 Aldo Cortesi
+ # Copyright (c) 2010 Aldo Cortesi
 # Copyright (c) 2010, 2014 dequis
 # Copyright (c) 2012 Randall Ma
 # Copyright (c) 2012-2014 Tycho Andersen
@@ -28,23 +28,26 @@ from libqtile import bar, layout, widget
 from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile.lazy import lazy
 
-from settings.keys import keys, mod, go_to_group
+from settings.keys import keys, mod
 from settings.layouts import layouts
 
 groups = [Group(i) for i in "123456789"]
 
 for i in groups:
-    keys.append(
+    keys.extend([
         Key(
             [mod],
             i.name,
             lazy.group[i.name].toscreen(),
             desc="Switch to group {}".format(i.name),
+        ),
+        Key(
+            [mod, "shift"],
+            i.name,
+            lazy.window.togroup(i.name),
+            desc="move focused window to group {}".format(i.name),
         )
-    )
-    keys.append(Key([mod], i.name, lazy.function(go_to_group(i.name))))
-    keys.append(Key([mod, "shift"], i.name, lazy.window.togroup(i.name)))
-
+    ])
 
 widget_defaults = dict(
     font="sans",
@@ -54,48 +57,26 @@ widget_defaults = dict(
 
 extension_defaults = widget_defaults.copy()
 
-wallpaper_path = "~/data/wallpapers-themer/arch-logo-dark.png"
+wallpaper_path = "~/data/wallpapers/04.jpg"
 
 screens = [
     Screen(
-        top=bar.Bar(
+        top=bar.Gap(6),
+        left=bar.Gap(6),
+        right=bar.Gap(6),
+        bottom=bar.Bar(
             [
-                widget.CurrentLayout(),
+                # widget.CurrentLayout(),
                 widget.GroupBox(
                     visible_groups=["1", "2", "3", "4", "5"],
-                    borderwidth=1,
-                    padding_x=8,
                     active=["#f1ffff", "#f1ffff"],
                     inactive=["#44475a", "#44475a"],
                     highlight_method="block",
                     rounded=False,
+                    this_screen_border=["#bd93f9", "#bd93f9"],
                     this_current_screen_border=["#bd93f9", "#bd93f9"],
                     other_current_screen_border=["#6272a4", "#6272a4"],
-                    foreground=["#292d3e", "#292d3e"],
-                    background=["#282a36", "#282a36"],
-                ),
-                widget.WindowName(),
-                widget.Systray(),
-                widget.Clock(format="%Y-%m-%d %a %I:%M %p"),
-            ],
-            28,
-            background="#282A36",
-        ),
-        wallpaper=wallpaper_path,
-        wallpaper_mode="fill",
-    ),
-    Screen(
-        top=bar.Bar(
-            [
-                widget.CurrentLayout(),
-                widget.GroupBox(
-                    visible_groups=["6", "7", "8", "9"],
-                    active=["#f1ffff", "#f1ffff"],
-                    inactive=["#44475a", "#44475a"],
-                    highlight_method="block",
-                    rounded=False,
-                    this_current_screen_border=["#bd93f9", "#bd93f9"],
-                    other_current_screen_border=["#6272a4", "#6272a4"],
+                    other_screen_border=["#6272a4", "#6272a4"],
                     foreground=["#292d3e", "#292d3e"],
                     background=["#282a36", "#282a36"],
                 ),
@@ -107,13 +88,16 @@ screens = [
                     },
                     name_transform=lambda name: name.upper(),
                 ),
-                # widget.Systray(),
+                widget.Systray(),
                 widget.Clock(format="%Y-%m-%d %a %I:%M %p"),
                 widget.QuickExit(),
             ],
-            24,
+            32,
             background="#282A36",
+            margin=[8, 0, 0, 0]
         ),
+        wallpaper=wallpaper_path,
+        wallpaper_mode="fill",
     ),
 ]
 
